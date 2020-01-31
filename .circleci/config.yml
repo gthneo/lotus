@@ -9,7 +9,7 @@ executors:
     resource_class: 2xlarge
   alpine:
     docker:
-      - image: alpine:edge
+      - image: ubuntu:19.10
 
 commands:
   install-deps:
@@ -51,8 +51,9 @@ commands:
             - /var/tmp/filecoin-proof-parameters/
   install_ipfs:
     steps:
-      - run: apk add --update ca-certificates
       - run: |
+          apt update
+          apt install -y wget
           wget https://github.com/ipfs/go-ipfs/releases/download/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz
           wget https://github.com/ipfs/go-ipfs/releases/download/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz.sha512
           if [ "$(sha512sum go-ipfs_v0.4.22_linux-amd64.tar.gz)" != "$(cat go-ipfs_v0.4.22_linux-amd64.tar.gz.sha512)" ]
@@ -284,8 +285,6 @@ jobs:
       - install_ipfs
       - attach_workspace:
           at: "."
-      - run:
-          command: cd project
       - run:
           name: Create bundles
           command: ./scripts/build-bundle.sh
